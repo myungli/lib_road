@@ -1,0 +1,53 @@
+$lib->lib_fun("db_update");   //라이브러리 로드
+$sql = $db_update->db_update_("MEMBER_CONN","Passwd = '$b_pwd',email = '$email'","UserID = '$b_id'"); //함수 호출
+
+전달 인자
+1번째 인자 : 업데이트할 테이블명
+2번째 인자 : 업데이트할 필드명 과 값 ( 여러개일경우 (,)로 여러개 입력)
+3번째 인자 : 업데이트할 곳 조건문 예:( UserID = '$b_id' 인 곳을 업데이트..)
+
+반환값(return)
+if(!$sql){
+업데이트 성공 메시지;
+}else{
+업데이트 실패 메시지;
+echo $sql;
+} // 에러가 있을 경우 $sql 문을 리턴시켜주기 때문에..
+
+사용예제
+$db_update=$this->lib_hab("db_update");
+$sql = $db_update->db_update_("ml_lib","title='$title',upfile='$upfile4',type='$total_type2',factor='$factor2',factor_val='$factor_val2',return_val='$return2',project='$total_project2',example='$example2',source_code='$source_code2',account='$account2',modify_date=now(),status='$status',fne='$upfile2[1]'","no='$no'");
+		
+		
+if (!$sql) {
+  $list_page_save2_return = $this->lib_hab("list_page_save2_return");
+  $message->message_("게시글이 수정되었습니다.","location.href='mllib_list.html?".$list_page_save2_return->list_page_save2_return_()."';","exit");
+} else {
+  $message->message_("글쓰기 실패입니다.","history.back();","exit");
+}
+
+소스코드
+<?
+class db_update extends lib_road{
+	function db_update_($table,$set,$where){
+		if(!$table || !$set || !$where){
+			echo("field 또는 table 또는 where 인자(3)가 부족합니다.");
+			exit;
+		}
+		if($set){
+			$set_ = " set ".$set;
+		}
+		if($where){
+			$where_ = " where ".$where;
+		}
+		$sql = "UPDATE $table$set_$where_";
+		if(!mysql_query($sql)){
+			echo mysql_error()." : mysql 에러.<br>";
+			return $sql;
+		}
+	}
+}
+?>
+
+설명
+원하는 db 필드에 값을 업데이트 합니다.
