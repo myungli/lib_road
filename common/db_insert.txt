@@ -1,0 +1,53 @@
+$lib->lib_fun("db_insert");   //라이브러리 로드
+$sql = $db_insert->db_insert_("BRANCH_DEVIDE","No,Pay_Month,B_UserID,Start_Day,End_Day,B_Sale_Type,Setup,Month,Content,first","'','$gi','$b_id',now(),'$ma','$val','','$ga','','$first'"); //함수 호출
+
+전달 인자
+1번째 인자 : insert할 테이블명
+2번째 인자 : insert할 필드명
+3번째 인자 : insert할 데이터
+필드갯수와 데이터 갯수가 같아야 합니다.
+
+반환값(return)
+if(!$sql){
+
+insert 성공 메시지;
+
+}else{
+
+insert 실패 메시지;
+
+echo $sql;
+
+} // 에러가 있을 경우 $sql 문을 리턴시켜주기 때문에..
+
+사용예제
+$db_insert = $this->lib_hab("db_insert");
+$sql = $db_insert->db_insert_("ml_lib","name,userid,title,count,upfile,thread,type,factor,factor_val,return_val,project,example,source_code,account,create_date,status,fne,fid,end","'$writer','$login_userid','$title','1','$upfile4','$new_thread','$total_type2','$factor2','$factor_val2','$return2','$total_project2','$example2','$source_code2','$account2',now(),'$status','$upfile2[1]','$fid','0'");
+
+if (!$sql) {
+  $list_page_save2_return = $this->lib_hab("list_page_save2_return");
+  $message->message_("게시글이 등록되었습니다.","location.href='mllib_list.html?".$list_page_save2_return->list_page_save2_return_()."';","exit");
+} else {
+  $message->message_("글쓰기 실패입니다.","history.back();","exit");
+}
+
+소스코드
+<?
+class db_insert extends lib_road{
+	function db_insert_($table,$field,$value){
+		if(!$table || !$field || !$value){
+			echo("field 또는 table 또는 value 인자(3)가 부족합니다.");
+			exit;
+		}
+		$sql = "INSERT INTO $table ($field) values ($value)";
+		if(!mysql_query($sql)){
+			echo mysql_error()." : mysql 에러.<br>";
+			return $sql;
+		}
+	}
+}
+?>
+
+설명
+필드갯수와 데이터 갯수가 같아야 합니다.
+

@@ -1,0 +1,43 @@
+$lib->lib_fun("value_check");  //라이브러리 로드
+$value_check->value_check_($var_arr,$var_cou_arr);
+
+전달 인자
+.
+
+반환값(return)
+.
+
+사용예제	
+$var_arr = array($con_no,$no);
+$var_cou_arr = array($check_box,$check_box2);//배열로 넘어 오는 값들
+$lib->lib_fun("value_check");  //라이브러리 로드
+$lib->lib_fun("message");   //라이브러리 로드
+if(!$value_check->value_check_($var_arr,$var_cou_arr)){
+    $message->message_("인자가 부족하여 처리 할수 없습니다.","history.back();","exit");   //함수 호출
+}
+
+소스코드
+<?
+class value_check extends lib_road{
+    function value_check_($var_arr,$var_cou_arr) {
+		if(count($var_arr)>=1 && is_array($var_arr)){
+			foreach($var_arr as $value){
+				if(!$value){
+					return false;
+				}
+			}
+		}
+        if(count($var_cou_arr)>=1 && is_array($var_cou_arr)){
+            foreach($var_cou_arr as $value){
+                if(count($value) < 1){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+?>
+
+설명
+전달 인수 체크

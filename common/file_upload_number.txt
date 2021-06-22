@@ -1,0 +1,50 @@
+$lib->lib_fun("file_upload_number");  //함수 로드
+$save_name = $file_upload_number->file_upload_number_("opfile","$path/$timg","0755");
+
+전달 인자
+인자 1 => 파일 변수명
+인자 2 => 저장할 경로 및 파일명
+인자 3 => 퍼미션
+
+반환값(return)
+.
+
+사용예제
+$lib->lib_fun("file_upload_number");  //함수 로드
+if($opfile){
+  $opfile_name = ${'upload'.$i.'_name'};
+  $upfile_ext = split("\.",$opfile_name);
+  $timg = $no."_op".($i+1).".".$upfile_ext[1];
+  $input .= "/sub_lib/d_lib/p".$con_no."/d".$no."/".$timg."\n";
+  $save_name = $file_upload_number->file_upload_number_("opfile","$path/$timg","0755");
+}else{
+  $input.= $fp[$i];
+}
+
+소스코드
+<?
+class file_upload_number extends lib_road{
+    function file_upload_number_($upfile,$path,$permision){
+        if(is_null($_FILES[$upfile]['name']) || !file_exists($_FILES[$upfile]['tmp_name'])){
+            return "";
+        }
+  		$message = $this->lib_hab("message");
+        if(file_exists($path)){
+            if(!unlink($path)){
+                $message->message_("$path 파일이 존재 합니다.","history.back();","exit");   //함수 호출
+            }
+        }
+        if(move_uploaded_file($_FILES[$upfile]['tmp_name'],$path)){//파일를 이동
+            @chmod($path, $permision);
+            return $path;
+        }else{
+            $message->message_("$path 파일 저장 실폐.","history.back();","exit");   //함수 호출
+        }
+    }
+}
+?>
+
+설명
+파일 경로 및 이름을 지정하고 저장 합니다.
+만약 파일이 있으면 기존 파일은 업어서 저장합니다.
+파일명이 db 번호로 관리 하고자 할때 사용 하시면 됩니다.

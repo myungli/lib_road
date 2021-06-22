@@ -1,0 +1,28 @@
+$lib->lib_fun("db_total_counter");
+$r_old_total = $db_total_counter->db_total_counter_("notable","no=$no");
+
+전달 인자
+인자1. 테이블명
+인자2. where문
+
+반환값(return)
+리턴값 : 일반 변수로 해당 테이블 카운터 숫자
+
+사용예제
+.
+
+소스코드
+<?
+class db_total_counter extends lib_road{
+	function db_total_counter_($table,$where){////총투표수
+		$db_select = $this->lib_hab("db_select");
+		$result = $db_select->db_select_("count(*) as total",$table,$where,"","","1");
+//		echo("bbb : $result<br>");
+		$row = mysql_fetch_array($result);
+		return $row[total];
+	}
+}
+?>
+
+설명
+레코드 갯수 카운터
