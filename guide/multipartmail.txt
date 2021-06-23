@@ -1,0 +1,164 @@
+전달 인자
+.
+
+반환값(return)
+.
+
+사용예제
+.
+
+소스코드
+<?
+class multipartmail extends lib_road{
+	var $header2;
+	var $parts;
+	var $message;
+	var $subject;
+	var $to_address;
+	var $boundary;
+	var $from_address;
+	var $smtp_server;
+	var $smtp_user;
+	var $smtp_passwd;
+	var $mess_ctype;
+
+	function isemail($email){
+		// regx to test for valid e-mail adres
+		if($email){
+			$regex = '^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]{2,})+$';
+			if (eregi($regex, $email)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function multipartmail_($dest, $src, $sub,$cc,$bcc,$name=""){//$db_cart[email],"formmail@$db_cart[url]", "$db_cart[info] 메일 문의 접수","","",$db_cart[info]
+		if (!$this->isemail($dest)){
+			return false;
+		}//die('ERROR: Invalid To e-mail adres');
+		if (!$this->isemail($src)){
+			$src = $name;
+		}//die('ERROR: Invalid From e-mail adres');
+
+		$this->to_address = $dest;
+		$this->subject = $sub;
+		$this->from_address = $src;
+		if($name){
+			$this->from_name = $name;
+		}else{
+			$this->from_name = $src;
+		}
+
+		$this->parts = array();
+		$this->boundary = "-------Boundary-mlits=" . md5(uniqid(time()));
+
+		$this->header2 =  "Reply-To: $src\r\n" . "Return-Path: <$src>\r\n" . "From: ".$this->from_name."<$src>\r\n";
+
+		if ($this->isemail($cc)){
+			$this->header2 .= "Cc: ".$cc."\r\n";
+		}//die('ERROR: Invalid CC e-mail adres');
+
+		if ($this->isemail($bcc)){
+			$this->header2 .= "Bcc: ".$bcc."\r\n";
+		}
+
+		$this->header2 .= "MIME-Version: 1.0\r\n"."Content-Type: multipart/mixed;\r\n"." boundary=\"".$this->boundary."\"\r\n"."X-Mailer: MLITS Mailer 1.3\r\n";
+	}
+
+	function addmessage($msg, $ctype="text/plain"){
+		$this->message = "\r\n".$msg."\r\n";
+//		$this->message = chunk_split(base64_encode($msg), 76, "\n");
+//		$this->message = chunk_split($msg, 76, "\r\n");
+		$this->mess_ctype = $ctype;
+	}
+
+	function addattachment($upfile,$in_type='upfile'){
+		$vowels = array(" ", " ", "'", "\"","\/","\\","\;","\`","\%","\#");//파일 이름 변경.
+		if($in_type=="upfile"){
+			$f_name = str_replace($vowels, "", $_FILES[$upfile]['name']);//파일 네임 중 저장되어서 다시 불러 오기 안되는 문자들
+			$data = file_get_contents($_FILES[$upfile]['tmp_name']);
+			$f_type = $_FILES[$upfile]['type'];
+		}else{
+			$path_parts = pathinfo($upfile);
+			$f_name = $path_parts['basename'];
+			$data = file_get_contents($upfile);
+			$str = end(explode(".",$f_name));
+			$file_ctype_return = $this->lib_hab("file_ctype_return");
+			$f_type = $file_ctype_return->file_ctype_return_($str);
+		}
+
+		$i = count($this->parts);
+		$content_id = "part$i." . sprintf("%09d", crc32($f_name)) . strrchr($this->to_address, "@");
+		$this->parts[$i] = "--" . $this->boundary . "\n" .
+		"Content-Type: $f_type; name=\"$f_name\"\r\n" .
+		"Content-Transfer-Encoding: base64\r\n" .
+		"Content-ID: <$content_id>\r\n" .
+		"Content-Disposition: attachment;" ." filename=\"$f_name\"\r\n" ."\n".
+		chunk_split( base64_encode($data), 76, "\n");
+		return array($content_id,$f_type,$f_name);
+	}
+
+	function buildmessage(){
+		 $cnt = count($this->parts);
+		 for($i=0; $i<$cnt; $i++){
+			 $this->message .= $this->parts[$i];
+		 }
+	}
+
+	function sendmail($smtp_server="",$smtp_user="",$smtp_passwd="",$charset="EUC-KR"){
+		$this->message = "--".$this->boundary."\r\n"."Content-Type: ".$this->mess_ctype."; charset=\"$charset\"\r\n"."Content-Transfer-Encoding: 8bit\r\n".$this->message."\r\n";
+
+		if(count($this->parts)>=1){
+			$this->buildmessage();
+		}
+
+		if($this->smtp_ser_yn($smtp_server,$smtp_user,$smtp_passwd)){
+			$this->sendmail_sock($charset);
+		}else{//
+			mail($this->to_address,$this->subject,$this->message,$this->header2);
+		}
+	}
+
+	function smtp_ser_yn($smtp_server,$smtp_user,$smtp_passwd){
+		if($smtp_server && $smtp_user && $smtp_passwd){
+			$this->smtp_server = $smtp_server;
+			$this->smtp_user = $smtp_user;
+			$this->smtp_passwd = $smtp_passwd;
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function sendmail_sock($charset) {
+		$smtp_sock = fsockopen($this->smtp_server, "25");
+		if (!$smtp_sock) {
+			 die ("Couldn't open mail connection to $smtp_server! \n");
+		}
+
+		fputs($smtp_sock, "AUTH LOGIN\n");
+		fputs($smtp_sock, base64_encode($this->smtp_user)."\n");
+		fputs($smtp_sock, base64_encode($this->smtp_passwd)."\n");
+		fputs($smtp_sock, "HELO ".$this->smtp_server."\n");
+		fputs($smtp_sock, "VRFY ".$this->smtp_user."\n");
+		fputs($smtp_sock, "MAIL FROM:".$this->from_address."\n");
+		fputs($smtp_sock, "RCPT TO:".$this->to_address."\n");
+		fputs($smtp_sock, "DATA\n");
+		fputs($smtp_sock, $this->header2);
+
+		fputs($smtp_sock, "Subject: ".$this->subject."\n");
+		fputs($smtp_sock, "To: ".$this->to_address."\n");
+		fputs($smtp_sock, $this->message);
+
+		fputs($smtp_sock, "\n.\nQUIT\n");
+		fclose($smtp_sock);
+	}
+}
+?>
+
+설명
+.

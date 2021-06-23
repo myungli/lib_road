@@ -1,0 +1,40 @@
+전달 인자
+.
+
+반환값(return)
+.
+
+사용예제
+.
+
+소스코드
+<?php
+class tellers_page_trans extends lib_road{
+	function tellers_page_trans_($mod,$folder="/data_inout"){
+		if(strpos($_SERVER["HTTP_REFERER"],$_SERVER["HTTP_HOST"])!==false){
+			//$url_trans = str_replace("http://$_SERVER[HTTP_HOST]","",$_SERVER["HTTP_REFERER"]).".$mod.inc";
+			$u_parse = parse_url($_SERVER['HTTP_REFERER']);
+			$url_trans = $u_parse[path].".$mod.inc";
+			if(is_file("$_SERVER[DOCUMENT_ROOT]/..$folder$url_trans")){
+				return "$_SERVER[DOCUMENT_ROOT]/..$folder$url_trans";
+			}
+		}
+	}
+}
+?>
+
+설명
+trans_page_file 폴더 생성후 내부에 index.html 파일을 생성
+
+index.html
+<?php
+require_once("$_SERVER[DOCUMENT_ROOT]/../lib/lib_road.inc");
+$lib->lib_fun("tellers_page_trans");
+$req_text = $tellers_page_trans->tellers_page_trans_($_REQUEST[mod]);
+if($req_text){
+require_once($req_text);
+}
+?>
+
+public_html 폴더의 밖에 data_inout 폴더 생성후 연결하고자 하는 페이지의 경로대로 폴더생성후
+inc파일과 연결할 html파일명.OOO.inc 파일을 생성한다. ex) 123.html.qwer.inc

@@ -1,0 +1,36 @@
+전달 인자
+$lib->lib_fun("option");
+$co = array("1"=>"작은수1","2"=>"작은수2","3"=>"작은수3","4"=>"작은수4","5"=>"작은수5","6"=>"작은수6");
+echo $option->option_("2",$co);
+
+인자 설명
+.
+
+반환값(return)
+.
+
+사용예제
+.
+
+소스코드
+<?
+class option extends lib_road{
+    function option_($key_value,$option1=array()){
+		if(is_array($option1)){
+			foreach($option1 as $key=>$value){
+				if($key_value == $key){
+					$selected = " selected";
+				}else{
+					$selected = "";
+				}
+				$re_value .="<option value='$key'$selected>$value</option>";
+			}
+			return $re_value;
+		}
+    }
+}
+?>
+
+설명
+$co는 2차원 배열이여야 합니다.
+"2"는 seleted 되어야 하는 값

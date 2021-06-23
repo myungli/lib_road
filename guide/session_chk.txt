@@ -1,0 +1,22 @@
+전달 인자
+$lib->lib_fun("session_chk");
+$type = array($session_id);
+$session_chk->session_chk_($type,"로그인 하세요","자바스크립트 코드","");
+
+인자 설명
+1번째 인자 : 세션ID
+2번째 인자 : alert 메세지
+3번째 인자 : alert 후 임의의 액션(자바스크립트);
+4번째 인자 : alert 후 php exit; 를 할건지 안할건지 지정 ("" 은 사용안함, "1" 아무글자입력하면 사용)
+
+반환값(return)
+.
+
+사용예제
+.
+
+소스코드
+.
+
+설명
+세션값 체크

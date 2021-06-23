@@ -1,0 +1,72 @@
+전달 인자
+$lib->lib_fun("paging");   //library 로드
+$row_page = $paging->paging_($total_record,$page,10,10);  //함수 호출
+
+인자 설명
+1번째 인자 : $total_record = 전체 데이터 수
+2번째 인자 : $page = 현재 페이지 번호
+3번째 인자 : 페이지당 출력할 번호 갯수
+4번째 인자 : 페이지당 출력할 데이터 개수
+
+반환값(return)
+리턴되는 인자 개수 7 개
+$row_page[first] = 첫번째 데이터 번호
+$row_page[last] = 마지막 데이터 번호
+$row_page[article_num] = 출력되는 데이터 번호
+$row_page[first_page] = 첫번째 페이지 번호
+$row_page[last_page] = 마지막 페이지 번호
+$row_page[total_page] = 전체 페이지 갯수
+$row_page[before] = 처음페이지로 가는 버튼 (◀) 활성화 & 링크
+$row_page[after] = 마지막페이지로 가는 버튼 (▶) 활성화 & 링크
+
+사용예제
+.
+
+소스코드
+<?
+class paging extends lib_road{
+function paging_($total_record,$page,$num_per_block,$num_per_page1){//한페이지당 나올 페이지수//전체 페이지당 나올 블럭수
+	if(!$page){
+		$GLOBALS[page] = 1;
+		$page = 1;
+	}
+	$total_page=ceil($total_record / $num_per_page1);//전체 페이지 값
+	$first=$num_per_page1*($page-1);
+	$last=$num_per_page1*$page;
+	$isNext=$total_record-$last;
+	if($isNext>0){
+		$last -=1;
+	}else{
+		$last=$total_record-1;
+	}
+	$article_num = $total_record - $num_per_page1*($page-1);  //가상 번호
+	$row = $this->paging_no($page,$total_page,$num_per_block);
+	return array("last"=>$last,"article_num"=>$article_num,"first"=>$first,"first_page"=>$row[first_page],"last_page"=>$row[last_page],"before"=>$row[l_my_page],"after"=>$row[n_my_page],"total_page"=>$total_page);
+}
+
+function paging_no($page,$total_page,$page_per_block){//페이징 함수
+
+	$total_block=ceil($total_page/$page_per_block);
+	$block=ceil($page/$page_per_block);
+
+	$first_page=($block-1)*$page_per_block;
+	$last_page=$block*$page_per_block;
+
+	if($block>=$total_block){
+		$last_page=$total_page;
+	}
+	
+	if($block > 1){
+		$l_my=$first_page;
+	}
+	
+	if($block<$total_block){
+		$n_my = $last_page+1;
+	}
+	return array("first_page"=>$first_page,"last_page"=>$last_page,"l_my_page"=>$l_my,"n_my_page"=>$n_my);
+}
+}
+?>
+
+설명
+페이징 함수

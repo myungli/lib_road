@@ -1,0 +1,62 @@
+전달 인자
+$lib->lib_fun("tlable_row_add_del");//라이브러리 로드
+$tlable_row_add_del->tlable_row_add_($tname,$input_tag,$fu_name)
+
+인자 설명
+인자 1: 테이블 ID
+인자 2: 추가시킬 input_tag(복수등록가능)
+인자 3: 추가시킬 스크립트 function name
+
+반환값(return)
+.
+
+사용예제
+$tlable_row_add_del->tlable_row_add_($tname,$input_tag,$fu_name)
+
+
+$tlable_row_add_del->tlable_row_del_("");//삭제 스크립트  생성
+
+소스코드
+<?
+class tlable_row_add_del extends lib_road{
+    function tlable_row_add_($tname,$input_tag,$fu_name){
+		$GLOBALS[script] .="
+function $fu_name(){
+	var table = document.getElementById('$tname');
+	var table_row = table.insertRow(table.rows.length);
+";
+		foreach($input_tag as $key=>$value){
+			$GLOBALS[script] .="
+	var table_cell = table_row.insertCell($key);
+	table_cell.innerHTML += \"$value\";
+";
+		}
+		$GLOBALS[script] .="
+}
+";
+		return " onclick=\"$fu_name()\"";
+	}
+	function tlable_row_del_($tname) {
+		$script_duplicate_check = $this->lib_hab("script_duplicate_check");
+		if($script_duplicate_check->script_duplicate_check_("tlable_row_del")){
+			$GLOBALS[script] .="
+function tlable_row_del(tname){
+	var obj = event.srcElement;
+	while (obj.tagName != 'TD') obj = obj.parentElement;
+	var idx = obj.parentElement.rowIndex;
+	if(document.getElementById(tname).rows.length>1){
+		document.getElementById(tname).deleteRow(idx);
+	}else{
+		alert('한개이상 지정해야 합니다.');
+		return;
+	}
+}
+";
+		}
+		return " onclick=\"tlable_row_del('$tname')\"";
+	}
+}
+?>
+
+설명
+테이블 칼럼추가 삭제

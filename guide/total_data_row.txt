@@ -1,0 +1,55 @@
+전달 인자
+$lib->lib_fun("total_data_row");  //라이브러리 로드
+list($data,$total,$row_page) = $total_data_row->total_data_row_("no,name,size,pattern,pattern_j,title,read_num,img_s,img_b","contents_group_info","pay_yn!=Y and use_yn=Y","no desc","","10","15");  //함수호출
+
+인자 설명
+인자1. 필드명
+인자2. 테이블명
+인자3. where 값
+인자4. order by 값
+인자5. group by 값
+인자6. 한페이지에 뿌려질 데이터 갯수
+인자7. 한페이지에 뿌려질 페이징 갯수
+
+반환값(return)
+리턴값1. 모든 데이터, $row[article_num] / 데이터 출력 번호 자동 저장
+리턴값2. 데이터 갯수
+리턴값3. $row_page 기본값
+
+사용예제
+if(!$total){
+ echo("");
+}else{
+ foreach($data as $key=>$row){
+ ----프로그래밍----
+ $row[article_num] / 데이터 출력 번호 자동 저장
+ }
+}
+
+소스코드
+<?
+class total_data_row extends lib_road{
+    function total_data_row_($field,$table,$where,$order_by,$group_by,$r_line="15",$p_line="15"){
+		$db_select = $this->lib_hab("db_select");  //라이브러리 로드
+		$result = $db_select->db_select_($field,$table,$where,$order_by,$group_by,"");  //함수호출
+		$total_record = mysql_affected_rows();
+		$paging = $this->lib_hab("paging");   //library 로드
+		$row_page = $paging->paging_($total_record,$GLOBALS[page],$p_line,$r_line);  //함수 호출
+
+		if($total_record){
+			for($i=$row_page[first]; $i<=$row_page[last]; $i++){
+				mysql_data_seek($result,$i);
+				$row = mysql_fetch_array($result);
+				$row[article_num] = $row_page[article_num];
+				$data[] = $row;
+				$row_page[article_num]--;
+			}
+		}
+		return array($data,$total_record,$row_page);
+    }
+}
+?>
+
+설명
+limit 사용안하는 라이브러리
+페이징을 처리할때만 처리

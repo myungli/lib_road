@@ -1,0 +1,68 @@
+전달 인자
+$lib->lib_fun("db_select");
+$result = $db_select->db_select_("*","n_branch_mem","b_userid = '".$ID."'","no desc","p_no","0,10");
+
+인자 설명
+$total = mysql_affected_rows();
+그 후 mysql_fetch_array($sql); 등으로 사용합니다.
+1번째 인자 : select 할 필드명 * 은 전체;
+2번째 인자 : select 할 테이블명
+3번째 인자 : 조건문 (전체를 가져올경우 "" 로 처리해주세요)
+4번째 인자 : 정렬기준 지정 (order by)
+5번째 인자 : 그룹화 지정 (group by)
+6번째 인자 : 출력 제한 지정 (limit)
+
+반환값(return)
+에러시 echo $sql; 로 sql 문 확인 가능합니다.
+select문으로 불러온 값들이 return됩니다.
+
+사용예제
+<?
+//하나만 가져올 경우
+$lib->lib_fun("db_select");  //라이브러리 로드
+$result = $db_select->db_select_("UserID","SHOP_INFO","domain='$domain' and status = '2'","","","1");  //함수호출
+$shop_info = mysql_fetch_array($result);
+
+
+//두개이상 가져올 경우
+
+$lib->lib_fun("db_select");
+$result = $db_select->db_select_("Team","MLITS_MEM","Team!='CEO' and on_off='1'","","Team desc","");
+ while ($row=mysql_fetch_array($result)){
+  echo "<input name='object[]' class='job-object-division' type='checkbox' value='$row[Team]'>$row[Team]";
+ }
+?>
+
+소스코드
+<?
+class db_select extends lib_road{
+	function db_select_($field,$table,$where,$order,$group,$limit){
+		if(!$field || !$table){
+			echo("field 또는 table 인자(6)가 부족합니다.");
+			exit;
+		}
+		if($where){
+			$where_ = " where ".$where;
+		}
+		if($group){
+			$group_ = " group by ".$group;
+		}
+		if($order){
+			$order_ = " order by ".$order;
+		}
+		if($limit){
+			$limit_ = " limit ".$limit;
+		}
+		$sql = "select $field from $table$where_$group_$order_$limit_";
+		$result = mysql_query($sql);
+		if(!$result){
+			echo mysql_error()." : mysql 에러.<br>";
+			return $sql;
+		}
+		return $result;
+	}
+}
+?>
+
+설명
+보통 하나만 가져올 경우는 data_one_row_return 라이브러리를 사용합니다.

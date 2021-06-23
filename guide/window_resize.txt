@@ -1,0 +1,45 @@
+전달 인자
+$window_resize = $this->lib_hab("window_resize");   //라이브러리 로드
+$window_resize->window_resize_($fp[1],$fp[2],$fp[3]);   //함수 호출
+
+인자 설명
+첫번째 인자 : 가로사이즈
+두번째 인자 : 세로사이즈 입니다.
+세번째 인자 : 스크롤바 사용 유무입니다. (y, n) 중 택 1
+
+반환값(return)
+.
+
+사용예제
+$window_resize = $this->lib_hab("window_resize");   //라이브러리 로드
+$window_resize->window_resize_($fp[1],$fp[2],$fp[3]);   //함수 호출
+
+$script_print = $this->lib_hab("script_print");
+$script_print->script_print_("");
+
+소스코드
+<?
+class window_resize extends lib_road{
+	function window_resize_($width,$height,$scroll="y"){
+		$script_duplicate_check = $this->lib_hab("script_duplicate_check");
+		if($script_duplicate_check->script_duplicate_check_("window_resize")){
+			if(!$width || !$height){
+				echo("인자(2)가 부족합니다.");
+				exit;
+			}
+			if($scroll == "y"){
+				$scroll = "";
+			}else{
+				$scroll = "hidden";
+			}
+			$GLOBALS[script]  .= "
+		window.resizeTo($width,$height);
+		document.body.style.overflow='$scroll';
+			";
+		}
+	}
+}
+?>
+
+설명
+(팝업창)window_resize 함수
